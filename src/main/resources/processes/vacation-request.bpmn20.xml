@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="http://www.flowable.org/processdef">
+    <process id="vacationRequest" name="Vacation request" isExecutable="true">
+        <startEvent id="request" flowable:initiator="employeeName" flowable:formKey="vacation-request"/>
+        <sequenceFlow id="flow1" sourceRef="request" targetRef="handleRequest"/>
+        <userTask id="handleRequest" name="Handle vacation request" flowable:assignee="$INITIATOR"
+                  flowable:formKey="handle-vacation-request">
+            <documentation>${employeeName} would like to take ${numberOfDays} day(s) of vacation (Motivation:
+                ${vacationMotivation}).
+            </documentation>
+        </userTask>
+        <sequenceFlow id="flow2" sourceRef="handleRequest" targetRef="requestApprovedDecision"/>
+        <exclusiveGateway id="requestApprovedDecision" name="Request approved?"/>
+        <sequenceFlow id="flow3" sourceRef="requestApprovedDecision" targetRef="sendApprovalEmail">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[${vacationApproved == 'Approve'}]]></conditionExpression>
+        </sequenceFlow>
+        <serviceTask id="sendRejectionEmail"
+                     name="Send Rejection e-mail"
+                     flowable:class="com.example.flowable_spring_demo.service.SendRejectionEmailService">
+            <documentation>Your manager has disapproved your vacation request for ${numberOfDays} days.
+                Reason: ${managerMotivation}
+            </documentation>
+        </serviceTask>
+        <sequenceFlow id="flow4" sourceRef="requestApprovedDecision" targetRef="sendRejectionEmail">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[${vacationApproved == 'Reject'}]]></conditionExpression>
+        </sequenceFlow>
+        <serviceTask id="sendApprovalEmail"
+                     name="Send confirmation e-mail"
+                     flowable:class="com.example.flowable_spring_demo.service.SendApprovalEmailService"/>
+        <sequenceFlow id="flow5" sourceRef="sendApprovalEmail" targetRef="end"/>
+        <sequenceFlow id="flow6" sourceRef="sendRejectionEmail" targetRef="end"/>
+        <endEvent id="end"/>
+    </process>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_vacationRequest">
+        <bpmndi:BPMNPlane bpmnElement="vacationRequest" id="BPMNPlane_vacationRequest">
+            <bpmndi:BPMNShape bpmnElement="request" id="BPMNShape_request">
+                <omgdc:Bounds height="30.0" width="30.0" x="0.0" y="178.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="handleRequest" id="BPMNShape_handleRequest">
+                <omgdc:Bounds height="60.0" width="100.0" x="80.0" y="163.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="requestApprovedDecision" id="BPMNShape_requestApprovedDecision">
+                <omgdc:Bounds height="40.0" width="40.0" x="234.92798" y="173.00002"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sendApprovalEmail" id="BPMNShape_sendApprovalEmail">
+                <omgdc:Bounds height="60.0" width="100.0" x="330.0" y="82.77544"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+                <omgdc:Bounds height="28.0" width="28.0" x="642.5509" y="98.77544"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sendRejectionEmail" id="BPMNShape_sendRejectionEmail">
+                <omgdc:Bounds height="60.0" width="100.0" x="349.71185" y="261.4845"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+                <omgdi:waypoint x="29.949998618355412" y="193.0"/>
+                <omgdi:waypoint x="80.0" y="193.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+                <omgdi:waypoint x="179.94999999997563" y="193.0"/>
+                <omgdi:waypoint x="234.92798" y="193.00002"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+                <omgdi:waypoint x="254.92798" y="173.00002"/>
+                <omgdi:waypoint x="291.0664" y="142.77545"/>
+                <omgdi:waypoint x="330.0" y="112.77544"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+                <omgdi:waypoint x="430.0" y="97.77544"/>
+                <omgdi:waypoint x="430.0" y="97.77543"/>
+                <omgdi:waypoint x="569.98303" y="105.775444"/>
+                <omgdi:waypoint x="642.553" y="113.020134"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+                <omgdi:waypoint x="254.92798" y="213.00002"/>
+                <omgdi:waypoint x="349.71185" y="302.24298"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+                <omgdi:waypoint x="449.66187" y="291.4845"/>
+                <omgdi:waypoint x="575.4181" y="193.0"/>
+                <omgdi:waypoint x="649.55096" y="126.77544"/>
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</definitions>
