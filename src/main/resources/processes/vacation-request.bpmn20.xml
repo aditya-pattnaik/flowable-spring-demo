@@ -7,7 +7,8 @@
     <process id="vacationRequest" name="Vacation request" isExecutable="true">
         <startEvent id="request" flowable:initiator="employeeName" flowable:formKey="vacation-request"/>
         <sequenceFlow id="flow1" sourceRef="request" targetRef="handleRequest"/>
-        <userTask id="handleRequest" name="Handle vacation request" flowable:assignee="$INITIATOR"
+        <userTask id="handleRequest" name="Handle vacation request"
+                  flowable:candidateGroups="managers"
                   flowable:formKey="handle-vacation-request">
             <documentation>${employeeName} would like to take ${numberOfDays} day(s) of vacation (Motivation:
                 ${vacationMotivation}).
