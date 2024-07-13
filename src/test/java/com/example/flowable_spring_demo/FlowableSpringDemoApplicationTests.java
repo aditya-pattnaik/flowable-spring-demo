@@ -21,35 +21,35 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 class FlowableSpringDemoApplicationTests {
 
-	@Autowired
-	private VacationWorkflowService vacationWorkflowService;
+    @Autowired
+    private VacationWorkflowService vacationWorkflowService;
 
     @Autowired
-	private TaskService taskService;
+    private TaskService taskService;
 
-	@Test
-	@Deployment(resources = { "processes/vacation-request.bpmn20.xml" })
-	public void vacationApprovalTest() {
-		Request request = new Request("Employee", "Manager", 5);
-		vacationWorkflowService.startProcess(request);
-		Task task = taskService.createTaskQuery()
-				.singleResult();
-		assertEquals("Approve or Reject the request", task.getName());
-		Map<String, Object> variables = new HashMap<>();
-		variables.put("vacationApproved", true);
-		taskService.complete(task.getId(), variables);
-	}
+    @Test
+    @Deployment(resources = {"processes/vacation-request.bpmn20.xml"})
+    public void vacationApprovalTest() {
+        Request request = new Request("Employee", "Manager", 5);
+        vacationWorkflowService.startProcess(request);
+        Task task = taskService.createTaskQuery()
+                .singleResult();
+        assertEquals("Approve or Reject the request", task.getName());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("vacationApproved", true);
+        taskService.complete(task.getId(), variables);
+    }
 
-	@Test
-	@Deployment(resources = { "processes/vacation-request.bpmn20.xml" })
-	public void vacationRejectionTest() {
-		Request request = new Request("Employee", "Manager", 5);
-		vacationWorkflowService.startProcess(request);
-		Task task = taskService.createTaskQuery()
-				.singleResult();
-		assertEquals("Approve or Reject the request", task.getName());
-		Map<String, Object> variables = new HashMap<>();
-		variables.put("vacationApproved", false);
-		taskService.complete(task.getId(), variables);
-	}
+    @Test
+    @Deployment(resources = {"processes/vacation-request.bpmn20.xml"})
+    public void vacationRejectionTest() {
+        Request request = new Request("Employee", "Manager", 5);
+        vacationWorkflowService.startProcess(request);
+        Task task = taskService.createTaskQuery()
+                .singleResult();
+        assertEquals("Approve or Reject the request", task.getName());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("vacationApproved", false);
+        taskService.complete(task.getId(), variables);
+    }
 }
