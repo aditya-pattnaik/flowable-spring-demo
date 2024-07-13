@@ -5,48 +5,48 @@
              typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath"
              targetNamespace="http://www.flowable.org/processdef">
     <process id="vacationRequest" name="Vacation request" isExecutable="true">
-        <startEvent id="request" flowable:initiator="employeeName" flowable:formKey="vacation-request"/>
-        <sequenceFlow id="flow1" sourceRef="request" targetRef="handleRequest"/>
-        <userTask id="handleRequest" name="Handle vacation request"
-                  flowable:candidateGroups="managers"
-                  flowable:formKey="handle-vacation-request">
-            <documentation>${employeeName} would like to take ${numberOfDays} day(s) of vacation (Motivation:
-                ${vacationMotivation}).
-            </documentation>
+        <startEvent id="start"/>
+        <sequenceFlow id="flow1" sourceRef="start" targetRef="handleRequest"/>
+        <userTask id="handleRequest"
+                     name="Approve or Reject the request"
+                  flowable:candidateGroups="managers">
+            <documentation>Approve or Reject the request.</documentation>
         </userTask>
-        <sequenceFlow id="flow2" sourceRef="handleRequest" targetRef="requestApprovedDecision"/>
-        <exclusiveGateway id="requestApprovedDecision" name="Request approved?"/>
-        <sequenceFlow id="flow3" sourceRef="requestApprovedDecision" targetRef="sendApprovalEmail">
+
+        <sequenceFlow id="flow2" sourceRef="handleRequest" targetRef="requestDecision"/>
+        <exclusiveGateway id="requestDecision" name="Is request approved ?"/>
+
+        <sequenceFlow id="flow3" sourceRef="requestDecision" targetRef="sendApprovalEmail">
             <conditionExpression xsi:type="tFormalExpression">
-                <![CDATA[${vacationApproved == 'Approve'}]]></conditionExpression>
-        </sequenceFlow>
-        <serviceTask id="sendRejectionEmail"
-                     name="Send Rejection e-mail"
-                     flowable:class="com.example.flowable_spring_demo.service.SendRejectionEmailService">
-            <documentation>Your manager has disapproved your vacation request for ${numberOfDays} days.
-                Reason: ${managerMotivation}
-            </documentation>
-        </serviceTask>
-        <sequenceFlow id="flow4" sourceRef="requestApprovedDecision" targetRef="sendRejectionEmail">
-            <conditionExpression xsi:type="tFormalExpression">
-                <![CDATA[${vacationApproved == 'Reject'}]]></conditionExpression>
+                <![CDATA[${vacationApproved}]]></conditionExpression>
         </sequenceFlow>
         <serviceTask id="sendApprovalEmail"
                      name="Send confirmation e-mail"
                      flowable:class="com.example.flowable_spring_demo.service.SendApprovalEmailService"/>
+
+        <sequenceFlow id="flow4" sourceRef="requestDecision" targetRef="sendRejectionEmail">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[${!vacationApproved}]]></conditionExpression>
+        </sequenceFlow>
+        <serviceTask id="sendRejectionEmail"
+                     name="Send Rejection e-mail"
+                     flowable:class="com.example.flowable_spring_demo.service.SendRejectionEmailService">
+            <documentation>Your manager has disapproved your vacation request.</documentation>
+        </serviceTask>
+
         <sequenceFlow id="flow5" sourceRef="sendApprovalEmail" targetRef="end"/>
         <sequenceFlow id="flow6" sourceRef="sendRejectionEmail" targetRef="end"/>
         <endEvent id="end"/>
     </process>
     <bpmndi:BPMNDiagram id="BPMNDiagram_vacationRequest">
         <bpmndi:BPMNPlane bpmnElement="vacationRequest" id="BPMNPlane_vacationRequest">
-            <bpmndi:BPMNShape bpmnElement="request" id="BPMNShape_request">
+            <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_request">
                 <omgdc:Bounds height="30.0" width="30.0" x="0.0" y="178.0"/>
             </bpmndi:BPMNShape>
             <bpmndi:BPMNShape bpmnElement="handleRequest" id="BPMNShape_handleRequest">
                 <omgdc:Bounds height="60.0" width="100.0" x="80.0" y="163.0"/>
             </bpmndi:BPMNShape>
-            <bpmndi:BPMNShape bpmnElement="requestApprovedDecision" id="BPMNShape_requestApprovedDecision">
+            <bpmndi:BPMNShape bpmnElement="requestDecision" id="BPMNShape_requestDecision">
                 <omgdc:Bounds height="40.0" width="40.0" x="234.92798" y="173.00002"/>
             </bpmndi:BPMNShape>
             <bpmndi:BPMNShape bpmnElement="sendApprovalEmail" id="BPMNShape_sendApprovalEmail">
